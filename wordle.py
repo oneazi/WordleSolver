@@ -23,11 +23,14 @@ game_app = browser.find_element(By.TAG_NAME, 'game-app')
 board = browser.execute_script("return arguments[0].shadowRoot.getElementById('board')", game_app)
 game_rows = board.find_elements(By.TAG_NAME, 'game-row')
 
+# assign the first guess as one of the optimal words
+first_guesses = ['irate', 'adieu']
+guess = choice(first_guesses)
+
 # take the 6 guesses
 hints = {'correct': set(), 'wrong': set(), 'included': set()}
 for i in range(0, 6):
-    # select a word from the remaining list to be used as input
-    guess = choice(word_list)
+
     print(guess)
 
     # how to provide input to the game
@@ -79,4 +82,7 @@ for i in range(0, 6):
             if each in word:
                 word_list.remove(word)
                 break
+
+    # select a word from the remaining list to be used as input
+    guess = choice(word_list)
     sleep(2)
