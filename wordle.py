@@ -2,7 +2,7 @@ from selenium import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
-import keyboard  # used to type the words
+from selenium.webdriver.common.keys import Keys
 from numpy.random import choice  # set random initialization
 from time import sleep
 
@@ -16,7 +16,8 @@ browser = webdriver.Chrome(ChromeDriverManager().install(), options=chrome_optio
 browser.implicitly_wait(5)
 
 browser.get('https://www.nytimes.com/games/wordle/index.html')
-browser.find_element(by=By.XPATH, value="//body").click()
+page = browser.find_element(by=By.XPATH, value="//body")
+page.click()
 
 # get reference to all the rows
 game_app = browser.find_element(By.TAG_NAME, 'game-app')
@@ -34,8 +35,8 @@ for i in range(0, 6):
     print(guess)
 
     # how to provide input to the game
-    keyboard.write(guess, 0.05)
-    keyboard.press_and_release('enter')
+    page.send_keys(guess)
+    page.send_keys(Keys.ENTER)
 
     row = browser.execute_script('return arguments[0].shadowRoot', game_rows[i])
     tiles = row.find_elements(By.CSS_SELECTOR, "game-tile")
@@ -54,10 +55,6 @@ for i in range(0, 6):
             hints['correct'].add((j, guess[j]))
         elif evaluation == 'present':
             hints['included'].add((j, guess[j]))
-        # FIXME: If the letter is present in the word twice and the first instance is grey
-        #   while the second instance is Green, the Grey should not be added to 'wrong'.
-        #   Either check the remaining letters of the word in advance OR
-        #   Check the 'wrong' list when adding to 'correct' and delete from 'wrong'
         elif evaluation == 'absent':
             if (any(tile.text.lower() == hint[1] for hint in hints['correct'])
                     or any(tile.text.lower() == hint[1] for hint in hints['included'])):
