@@ -52,6 +52,8 @@ for i in range(0, 6):
     for j, tile in enumerate(tiles):
         evaluation = tile.get_attribute("evaluation")
         if evaluation == 'correct':
+            if guess[j] in hints['wrong']:
+                hints['wrong'].remove(guess[j])
             hints['correct'].add((j, guess[j]))
         elif evaluation == 'present':
             hints['included'].add((j, guess[j]))
