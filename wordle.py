@@ -1,4 +1,5 @@
 from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
@@ -12,7 +13,8 @@ from word_list import word_list
 chrome_options = Options()
 chrome_options.add_experimental_option("detach", True)
 chrome_options.add_argument('--start-maximized')
-browser = webdriver.Chrome(ChromeDriverManager().install(), options=chrome_options)
+s = Service(ChromeDriverManager().install())
+browser = webdriver.Chrome(service=s, options=chrome_options)
 browser.implicitly_wait(5)
 
 browser.get('https://www.nytimes.com/games/wordle/index.html')
