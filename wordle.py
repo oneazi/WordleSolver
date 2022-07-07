@@ -22,16 +22,14 @@ page = browser.find_element(by=By.XPATH, value="//body")
 page.click()
 
 # get reference to all the rows
-game_app = browser.find_element(By.TAG_NAME, 'game-app')
-board = browser.execute_script("return arguments[0].shadowRoot.getElementById('board')", game_app)
-game_rows = board.find_elements(By.TAG_NAME, 'game-row')
+game_rows = browser.find_elements(By.CLASS_NAME, 'Row-module_row__dEHfN')
 
 # assign the first guess as one of the optimal words
 first_guesses = ['irate', 'adieu']
 guess = choice(first_guesses)
 
 # take the 6 guesses
-hints = {'correct': set(), 'wrong': set(), 'included': set()}
+hints = {'correct': set(), 'absent': set(), 'present': set()}
 for i in range(0, 6):
 
     print(guess)
@@ -39,12 +37,12 @@ for i in range(0, 6):
     # how to provide input to the game
     page.send_keys(guess)
     page.send_keys(Keys.ENTER)
+    sleep(1.5)
 
-    row = browser.execute_script('return arguments[0].shadowRoot', game_rows[i])
-    tiles = row.find_elements(By.CSS_SELECTOR, "game-tile")
+    tiles = game_rows[i].find_elements(By.CLASS_NAME, "Tile-module_tile__3ayIZ")
 
     # check if the guess was correct
-    evals = [tile.get_attribute("evaluation") for tile in tiles]
+    evals = [tile.get_attribute("data-state") for tile in tiles]
     print(evals)
     if evals == ['correct'] * 5:
         print("Solved Successfully")
@@ -52,19 +50,19 @@ for i in range(0, 6):
 
     # build the hints to narrow the list
     for j, tile in enumerate(tiles):
-        evaluation = tile.get_attribute("evaluation")
+        evaluation = tile.get_attribute("data-state")
         if evaluation == 'correct':
-            if guess[j] in hints['wrong']:
-                hints['wrong'].remove(guess[j])
+            if guess[j] in hints['absent']:
+                hints['absent'].remove(guess[j])
             hints['correct'].add((j, guess[j]))
         elif evaluation == 'present':
-            hints['included'].add((j, guess[j]))
+            hints['present'].add((j, guess[j]))
         elif evaluation == 'absent':
             if (any(tile.text.lower() == hint[1] for hint in hints['correct'])
-                    or any(tile.text.lower() == hint[1] for hint in hints['included'])):
+                    or any(tile.text.lower() == hint[1] for hint in hints['present'])):
                 pass
             else:
-                hints['wrong'].add(guess[j])
+                hints['absent'].add(guess[j])
     print(f'{hints}\n')
 
     # narrow the list of possible words
@@ -74,16 +72,16 @@ for i in range(0, 6):
                 word_list.remove(word)
                 break
     for word in word_list[:]:
-        for each in hints['included']:
+        for each in hints['present']:
             if each[1] not in word or word[each[0]] == each[1]:
                 word_list.remove(word)
                 break
     for word in word_list[:]:
-        for each in hints['wrong']:
+        for each in hints['absent']:
             if each in word:
                 word_list.remove(word)
                 break
 
     # select a word from the remaining list to be used as input
     guess = choice(word_list)
-    sleep(2)
+    sleep(1)
