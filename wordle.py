@@ -19,6 +19,8 @@ browser.implicitly_wait(5)
 
 browser.get('https://www.nytimes.com/games/wordle/index.html')
 page = browser.find_element(by=By.XPATH, value="//body")
+welcome_x = browser.find_element(by=By.CLASS_NAME, value='Modal-module_closeIcon__b4z74')
+welcome_x.click()
 page.click()
 
 # get reference to all the rows
